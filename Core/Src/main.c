@@ -59,35 +59,34 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 
 Button_t SW1, SW2;
-uint8_t SW_State = 0;
+uint8_t SW_State = 0; // 状态缓存
+
+// 灯光控制函数
 
 void lighting()
 {
   if (SW_State == 0b11)
   { // 亮蓝灯
-    HAL_GPIO_WritePin(GPIOC, LED_R_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(GPIOC, LED_G_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(GPIOC, LED_R_Pin | LED_G_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(GPIOC, LED_B_Pin, GPIO_PIN_RESET);
   }
   else if (SW_State == 0b01)
   { // 亮绿灯
-    HAL_GPIO_WritePin(GPIOC, LED_R_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(GPIOC, LED_R_Pin | LED_B_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(GPIOC, LED_G_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(GPIOC, LED_B_Pin, GPIO_PIN_SET);
   }
   else if (SW_State == 0b10)
   { // 亮红灯
+    HAL_GPIO_WritePin(GPIOC, LED_G_Pin | LED_B_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(GPIOC, LED_R_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(GPIOC, LED_G_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(GPIOC, LED_B_Pin, GPIO_PIN_SET);
   }
   else
   { // 灭灯
-    HAL_GPIO_WritePin(GPIOC, LED_R_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(GPIOC, LED_G_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(GPIOC, LED_B_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(GPIOC, LED_R_Pin | LED_G_Pin | LED_B_Pin, GPIO_PIN_SET);
   }
 }
+
+// 回调函数
 
 void SW1_Single_Clink(void *arg)
 {
@@ -132,6 +131,8 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
+
+  // Button.h 初始化按键并绑定回调函数
 
   SEML_GPIO_Pin_Register(&SW1.GPIO_Handle, GPIOB, Button_SW1_Pin);
   SEML_GPIO_Pin_Register(&SW2.GPIO_Handle, GPIOB, Button_SW2_Pin);
